@@ -1,0 +1,30 @@
+
+Simulation Notes
+----------------
+-Need to add noiseless feedback channel so receiver can inform transmitter of successfully decoded packets
+-Need to decide on measurement of BER and throughput metrics
+  -BER: If we wait til "successfully" decoded, is there a way to measure BER? Or do we need to show BER for a non-HARQ system,
+   then assume a HARQ system has perfect BER and see how much the throughput changes.
+  -Throughput: Can measure average number of transmissions, and throughput efficiency (average number of accepted information
+   bits per transmitted channel symbol/bit)     
+-Need to decide on code combining techniques for both convolutional and RS codes
+  -For Type I, no code combining
+  -For Type II, could use 1) Code combining, 2) Generalized, or 3) Selective combining
+    -For convolutional, could send one generator polys output per transmission and combine with previous transmissions into a Viterbi decoder at receiver
+    -Need solution for RS since this is a block code
+-Transmitter functionality:
+  -Type I: vector of bits -> add CRC -> Encode all bits (both vector and crc) -> modulate all encoded bits -> optionally rrc pulse shape -> channel
+  -Type II: 
+-Receiver functionality:
+  -Type I: symbols -> optionally rrc pulse shape -> demodulate -> decode -> check CRC -> forward data OR request retransmission 
+  -Type II: 
+
+
+AWGN Paper simulation parameters
+--------------------------------
+-Packets of length k=960 bits
+-CRC of 14 bits for error detection
+-(2,1,6) convolutional code with generator polys 135, 171
+-Measured total number of transmissions vs. SNR, and throughput efficiency vs. SNR 
+-For Type II, uses code combining where one output of convolutional encoder is sent each transmission, and combined with previous
+ transmissions at receiver
