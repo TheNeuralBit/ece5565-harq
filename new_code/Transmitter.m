@@ -1,4 +1,32 @@
 function [ OutPutSamples ] = MyTransmitter( input )
+
+%Transmitter for ARQ
+  %Incoming bits
+  %Add CRC
+  %Modulate all bits
+  %Send all bits
+
+%Transmitter for HARQI
+  %Incoming bits
+  %Add CRC
+  %Encode all bits (incoming and crc)
+  %Modulate all bits
+  %Send all bits
+
+%Transmitter for HARQII
+  %Incoming bits
+  %Add CRC
+  %Encode all bits (incoming and crc)
+  %Modulate some part of bits (TBD)
+    %Send data and crc, then parity (?) 
+  %Send some part of bits (TBD) 
+
+%Add interleaving for Rayleigh
+
+
+
+
+
 % MyTransmitter takes in a vector bits b of real valued bits (zeros and
 % ones) of unknown length and outputs a vector of complex samples labeled
 % as OutPutSamples of length N with unit average power. The data in input

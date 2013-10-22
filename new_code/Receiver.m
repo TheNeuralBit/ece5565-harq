@@ -1,4 +1,29 @@
 function [ OutPutBits ] = MyReceiver( input )
+
+%Receiver for ARQ
+  %Incoming symbols
+  %Demodulate symbols
+  %Check CRC for errors
+  %Send ACK/NACK
+
+%Receiver for HARQI
+  %Incoming symbols
+  %Demodulate symbols
+  %Decode bits
+  %Check CRC for errors
+  %Send ACK/NACK
+
+%Transmitter for HARQII
+  %Incoming symbols
+  %Demodulate symbols
+  %Decode bits using previously transmitted bits
+  %Check CRC for errors
+  %Save decoded bits in state variable
+  %Send ACK/NACK
+
+%Add deinterleaving for Rayleigh
+  
+  
 % MyReceiver takes in a vector N+K length complex samples with unit average
 % power.  The output will be a vector of real valued bits (zeros and ones)
 % labeled OutPutBits.  Value of N will be the same length as transmitter.

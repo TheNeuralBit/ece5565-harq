@@ -1,4 +1,35 @@
 function [ BER ] = TopLevelFcn( FS, NUM_BITS, input_bits, EBNO, BITS_PER_SYMBOL, CODE_RATE, TIME_SHIFT, PHASE_SHIFT, FREQ_SHIFT, FIGURES_ON, MAX_DOPPLER)
+
+%Loop over SNR
+    %Loop over total number of packets to transmit
+      %Set tx_num = 0
+      %Set tx_symbols = 0
+      %While loop over transmit/receive until no error is detected in packet
+         %Increment tx_num and tx_symbols
+         %Transmit
+         %Channel
+         %Receive
+         %Send feedback on return channel (assume perfect feedback)
+         %If error detected, repeat loop
+      %Record packet_size/tx_symbols (throughput efficiency) and tx_num (number
+      %of transmissions) for this packet
+    %Record total results averaging over all packets
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %TopLevel:
 %
 %Input: 
