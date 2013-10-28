@@ -1,4 +1,6 @@
 function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET, SNR_RANGE )
+    configuration;
+
     % Pre-allocate return arrays
     throughput = zeros( 1, length(SNR_RANGE) );
     ber = zeros( 1, length(SNR_RANGE) );
@@ -29,8 +31,10 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 tx_bit_counter = tx_bit_counter + bit_count;
                 
                 %Channel
-                %rx_samples = awgnChannel(tx_channels, variance, FS, 0, 0, 0, 0);
-                rx_samples = tx_samples;
+                rx_samples = awgnChannel(tx_samples, 1, F_S, 0, 0, 0, 0);
+                %rx_samples = tx_samples;
+                figure;
+                plot(rx_samples);
                 
                 %Receive
                 [success, output_bits] = receive( rx_samples );

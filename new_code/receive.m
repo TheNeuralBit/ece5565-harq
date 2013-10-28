@@ -1,6 +1,7 @@
 function [ success, output_bits ] = receive( rx_samples )
-    % BS Test Function
-    output_bits = rx_samples;
+    configuration;
+    
+    [output_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
     success = true;
 
 %Receiver for ARQ

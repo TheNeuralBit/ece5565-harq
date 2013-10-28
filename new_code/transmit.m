@@ -1,12 +1,17 @@
 function [ tx_samples, num_bits_txed ] = transmit( input_bits )
+    configuration;
+    
     % BS Test Function
-    tx_samples = input_bits;
+    %tx_samples = input_bits;
     num_bits_txed = length( input_bits );
 
 %Transmitter for ARQ
   %Incoming bits
   %Add CRC
-  %Modulate all bits
+    %Modulate all bits
+    tx_samples = modulate(input_bits, MODULATION, SAMPLES_PER_SYMBOL);
+    tx_samples = apply_filt(tx_samples, PULSE_SHAPE);
+
   %Send all bits
 
 %Transmitter for HARQI
