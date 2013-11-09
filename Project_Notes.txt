@@ -28,3 +28,13 @@ AWGN Paper simulation parameters
 -Measured total number of transmissions vs. SNR, and throughput efficiency vs. SNR 
 -For Type II, uses code combining where one output of convolutional encoder is sent each transmission, and combined with previous
  transmissions at receiver
+
+Things to Note in Paper
+------------------------
+-Use input from AWGN simulation paper about why we use SAW ARQ
+  -In addition, we want to focus on HARQ implementations and their differences, 
+   not on different ARQ schemes) -- so we base them all on SAW
+    -If needed, there is good info on different ARQ schemes in ARQErrorControlSchemes paper
+
+
+
