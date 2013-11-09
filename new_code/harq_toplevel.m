@@ -27,7 +27,7 @@ throughput = zeros( 1, length(EBNO) );
 ber = zeros( 1, length(EBNO) );
 
 %Generate packets with random bits to send
-PACKET_DATA = randn( NUM_PACKETS, DATA_BITS_PER_PACKET ) < 1;
+PACKET_DATA = randn( NUM_PACKETS, DATA_BITS_PER_PACKET ) < 0;
 
 %Loop over SNR
 for ebno_idx = 1:length( EBNO )
