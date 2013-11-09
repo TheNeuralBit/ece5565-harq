@@ -1,13 +1,61 @@
-function [ tx_samples, num_bits_txed ] = transmit( input_bits )
+function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattempt )
+%harq_toplevel:
+%  Transmission of the input bits in HARQ scenario
+%
+%  function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattempt )
+%
+%Input: 
+%  input_bits: 
+%  harqtype: 0=ARQ, 1=TypeI HARQ, 2=TypeII HARQ
+%  txattempt: Denotes the attempt number for the transmission of this set
+%    of bits. Each HARQ type and FEC scheme used may use this number to 
+%    determine exactly what to transmit (along with persistent info)
+%
+%Output:
+%  tx_samples: samples to be passed into channel 
+%  num_bits_txed: total number of bits transmitted (to be used for
+%    throughput measurements)
+%
 
 configuration;
+persistent savebits
 
 %% Add CRC %%
 
-
+bitswithcrc = input_bits;
 
 %% Encode bits %%
-encoded_bits = conv_encode(input_bits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+
+%ARQ
+if harqtype == 0
+    encoded_bits = bitswithcrc;
+
+%HARQ with Convolutional Coding
+elseif (harqtype == 1) && strcmp(CODING,'CONV')
+    encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+elseif harqtype == 2 && strcmp(CODING,'CONV')
+    numpolys = length(GENERATING_POLYS);
+    if mod(txattempt,numpolys) == 1 %First transmission (or another transmission of first poly)
+        savebits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        encoded_bits = savebits(1:numpolys:end);
+    elseif mod(txattempt,numpolys) == 0 %Transmission of last poly
+        firstbit = numpolys;
+        encoded_bits = savebits(firstbit:numpolys:end);
+    else %Transmission of some middle poly
+        encoded_bits = savebits(mod(txattempt,numpolys):numpolys:end);
+    end
+
+    
+%HARQ with Reed-Solomon Coding
+elseif harqtype == 1 && strcmp(CODING,'RS')
+    %Replace with RS coding
+    encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+elseif harqtype == 2 && strcmp(CODING,'RS')
+    %Replace with RS coding
+    encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+end
+
+
 
 %interleave -- add this for Rayleigh 
 

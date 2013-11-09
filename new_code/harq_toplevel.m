@@ -48,7 +48,7 @@ for ebno_idx = 1:length( EBNO )
 
             %Transmit
             input_bits = PACKET_DATA(packet_idx,:);
-            [tx_samples, bit_count] = transmit( input_bits );
+            [tx_samples, bit_count] = transmit( input_bits, HARQ_TYPE, attempt_counter );
             tx_bit_counter = tx_bit_counter + bit_count;
 
             %Channel
@@ -58,10 +58,20 @@ for ebno_idx = 1:length( EBNO )
             %plot(rx_samples);
 
             %Receive
-            [success, output_bits] = receive( rx_samples );
-            error_counter = error_counter + sum( abs( input_bits-output_bits ) )
+            [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
+            error_counter = error_counter + sum( abs( input_bits-output_bits ) );
             %"Send feedback on return channel" (assume perfect feedback)
             %If no error detected
+            
+            %Temporarily adding this to check success (remove once CRC is
+            %in place):
+            if sum( abs( input_bits-output_bits ) ) > 0
+                disp(['Packet #' num2str(packet_idx) ': Transmission #' num2str(attempt_counter) ' failed. Retransmitting.'])
+                success = false;
+            else
+                disp(['Packet #' num2str(packet_idx) ': Transmission #' num2str(attempt_counter) ' succeeded.'])
+                success = true;
+            
             if success
                 % add up any actual errors that were made
                 error_counter = error_counter + sum( abs( input_bits-output_bits ) );
