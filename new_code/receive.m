@@ -1,8 +1,23 @@
 function [ success, output_bits ] = receive( rx_samples )
-    configuration;
-    
-    [output_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
-    success = true;
+configuration;
+
+%% Demodulate symbols %%
+[output_bits, softbits] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
+
+
+%% Decode bits %%
+
+%deinterleave -- add this for Rayleigh
+
+decoded_bits = soft_viterbi_decode(softbits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+
+
+success = true;
+
+%% Check CRC %%
+output_bits = decoded_bits;
+
+
 
 %Receiver for ARQ
   %Incoming symbols

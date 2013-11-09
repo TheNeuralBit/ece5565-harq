@@ -1,19 +1,32 @@
 function [ tx_samples, num_bits_txed ] = transmit( input_bits )
-    configuration;
-    
-    % BS Test Function
-    %tx_samples = input_bits;
-    num_bits_txed = length( input_bits );
 
+configuration;
+
+%% Add CRC %%
+
+
+
+%% Encode bits %%
+encoded_bits = conv_encode(input_bits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+
+%interleave -- add this for Rayleigh 
+
+%Set number of bits that are transmitted
+num_bits_txed = length( encoded_bits );
+
+%% Modulate bits %%
+tx_samples = modulate(encoded_bits, MODULATION, SAMPLES_PER_SYMBOL);
+tx_samples = apply_filt(tx_samples, PULSE_SHAPE);
+
+
+
+  
 %Transmitter for ARQ
   %Incoming bits
   %Add CRC
-    %Modulate all bits
-    tx_samples = modulate(input_bits, MODULATION, SAMPLES_PER_SYMBOL);
-    tx_samples = apply_filt(tx_samples, PULSE_SHAPE);
-
+  %Modulate all bits
   %Send all bits
-
+  
 %Transmitter for HARQI
   %Incoming bits
   %Add CRC
