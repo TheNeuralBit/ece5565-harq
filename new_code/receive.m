@@ -1,14 +1,25 @@
 function [ success, output_bits ] = receive( rx_samples )
     configuration;
     
-    [output_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
-    success = true;
+    %[output_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
+    %success = true;
 
 %Receiver for ARQ
   %Incoming symbols
   %Demodulate symbols
+  [rx_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
   %Check CRC for errors
+  cut_off = length(rx_bits)-32;
+  output_bits = rx_bits(1:cut_off);
+  crc = rx_bits(cut_off+1:end);
+  crc = crc(:);
   %Send ACK/NACK
+  computed_crc = crc32(output_bits);
+  if sum(abs(crc - computed_crc))
+      success = false;
+  else
+      success = true;
+  end
 
 %Receiver for HARQI
   %Incoming symbols

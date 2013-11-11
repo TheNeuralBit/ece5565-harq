@@ -17,6 +17,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         num_errors = zeros(1, NUM_PACKETS);
         %Loop over total number of packets to transmit
         for packet_idx = 1:NUM_PACKETS
+            fprintf('Packet #%d\n', packet_idx)
             %While loop over transmit/receive until no error is detected in packet
             attempt_counter = 0;
             tx_bit_counter = 0;
@@ -31,18 +32,24 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 tx_bit_counter = tx_bit_counter + bit_count;
                 
                 %Channel
-                rx_samples = awgnChannel(tx_samples, 1, F_S, 0, 0, 0, 0);
+                rx_samples = awgnChannel(tx_samples, .05, F_S, 0, 0, 0, 0);
                 %rx_samples = tx_samples;
-                figure;
-                plot(rx_samples);
+                %figure;
+                plot(rx_samples, 'o');
                 
                 %Receive
                 [success, output_bits] = receive( rx_samples );
+                if ~success
+                    disp 'Oh no! Failed Packet! Retry'
+                end
                 %"Send feedback on return channel" (assume perfect feedback)
                 %If no error detected
-                if success
+                if success || attempt_counter > MAX_ATTEMPTS
+                    if attempt_counter > MAX_ATTEMPTS
+                        disp 'Transmission failed too many times, bailing out!'
+                    end
                     % add up any actual errors that were made
-                    error_counter = error_counter + sum( abs( input_bits-output_bits ) );
+                    error_counter = error_counter + sum( abs( input_bits(:)-output_bits(:) ) );
                     % break out of loop
                     break;
                 end

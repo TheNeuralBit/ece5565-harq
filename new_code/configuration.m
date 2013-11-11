@@ -7,6 +7,8 @@ PACKET_SIZE_BITS = 2048;    % Packet size including header bits
 RC_ROLLOFF = 0.25;          % Adjusts alpha of the RRC pulse shape
 PHASE_WINDOW = 256;
 
+MAX_ATTEMPTS = 3;
+
 if MODULATION == 'QPSK'
     M = 4;
 elseif MODULATION == '16QAM'
