@@ -8,9 +8,9 @@ PHASE_WINDOW = 256;
 
 MAX_ATTEMPTS = 3;
 
-if MODULATION == 'QPSK'
+if strcmp(MODULATION, 'QPSK')
     M = 4;
-elseif MODULATION == '16QAM'
+elseif strcmp(MODULATION, '16QAM')
     M = 16;
 end
 
@@ -20,7 +20,10 @@ if strcmp(CODING,'CONV')
     CODE_RATE = 1/length(GENERATING_POLYS);
 elseif strcmp(CODING,'RS')
     %Add RS parameters here
-    CODE_RATE = 1
+    SYMBOL_SIZE = 8;
+    GALOIS_FIELD_GENERATOR_POLY = 285;
+    REDUNDANT_SYMBOLS = 32;
+    CODE_RATE = (2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1)/(2^SYMBOL_SIZE-1);
 end
 
 

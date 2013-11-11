@@ -1,6 +1,6 @@
 function result = gf_div(x, y, gf_exp, gf_log)
-    dimension = 4;
-    fieldSize = 2^dimension;
+    configuration;
+    fieldSize = 2^SYMBOL_SIZE;
     if (y == 0)
         error('Can not divide by zero\n');
     elseif (x == 0)

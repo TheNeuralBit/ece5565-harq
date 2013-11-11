@@ -23,6 +23,7 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
     %% Add CRC %%
     
     bitswithcrc = [input_bits; crc32(input_bits);];
+    %bitsWithCRCHmm = bitswithcrc'
     num_bits_txed = length( bitswithcrc );
 
     
@@ -50,8 +51,7 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
         
     %HARQ with Reed-Solomon Coding
     elseif harqtype == 1 && strcmp(CODING,'RS')
-        %Replace with RS coding
-        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        encoded_bits = rs_encoder(bitswithcrc);
     elseif harqtype == 2 && strcmp(CODING,'RS')
         %Replace with RS coding
         encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);

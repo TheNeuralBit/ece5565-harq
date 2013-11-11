@@ -114,8 +114,8 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
         
     %HARQ with Reed-Solomon Coding
     elseif harqtype == 1 && strcmp(CODING,'RS')
-        %Replace with RS coding
-        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        %output_bits
+        decoded_bits = rs_decoder(output_bits);
     elseif harqtype == 2 && strcmp(CODING,'RS')
         %Replace with RS coding
         encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);

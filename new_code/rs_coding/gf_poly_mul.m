@@ -1,6 +1,6 @@
 function result = gf_poly_mul(x, y, gf_exp, gf_log)
-    dimension = 4;
-    fieldSize = 2^dimension;
+    configuration;
+    fieldSize = 2^SYMBOL_SIZE;
     result = zeros(1, length(x)+length(y)-1);
     
     for j = 1:length(y)

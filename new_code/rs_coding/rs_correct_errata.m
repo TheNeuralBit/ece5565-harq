@@ -1,6 +1,6 @@
 function new_msg = rs_correct_errata(msg, synd, pos, gf_exp, gf_log)
-    dimension = 4;
-    fieldSize = 2^dimension;
+    configuration;
+    fieldSize = 2^SYMBOL_SIZE;
     q = 1;
     for i = 1:length(pos);
         x = gf_exp(length(msg)-pos(i)+1);

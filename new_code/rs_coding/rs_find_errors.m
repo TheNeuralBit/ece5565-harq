@@ -1,6 +1,6 @@
 function err_pos = rs_find_errors(synd, nmess, gf_exp, gf_log)
-    dimension = 4;
-    fieldSize = 2^dimension;
+    configuration;
+    fieldSize = 2^SYMBOL_SIZE;
     err_poly = 1;
     old_poly = 1;
     
