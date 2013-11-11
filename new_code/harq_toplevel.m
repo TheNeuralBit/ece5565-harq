@@ -44,8 +44,8 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 end
                 %"Send feedback on return channel" (assume perfect feedback)
                 %If no error detected
-                if success || attempt_counter > MAX_ATTEMPTS
-                    if attempt_counter > MAX_ATTEMPTS
+                if success || attempt_counter >= MAX_ATTEMPTS
+                    if attempt_counter >= MAX_ATTEMPTS
                         disp 'Transmission failed too many times, bailing out!'
                     end
                     % add up any actual errors that were made
