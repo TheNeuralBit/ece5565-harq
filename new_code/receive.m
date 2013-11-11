@@ -1,19 +1,134 @@
-function [ success, output_bits ] = receive( rx_samples )
-    configuration;
-    
-    %[output_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
-    %success = true;
+function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
+%harq_toplevel:
+%  Reception of the rx_samples in HARQ scenario
+%
+%  function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
+%
+%Input: 
+%  rx_samples: 
+%  harqtype: 0=ARQ, 1=TypeI HARQ, 2=TypeII HARQ
+%  txattempt: Denotes the attempt number for the transmission of this set
+%    of bits. Each HARQ type and FEC scheme used may use this (along with persistent info)
+%    to determine exactly how to process the received bits
+%Output:
+%  success: indicates of packet passed CRC and does not need retransmission
+%  output_bits: decoded output bits
+%
 
-%Receiver for ARQ
-  %Incoming symbols
-  %Demodulate symbols
-  [rx_bits, ~] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
-  %Check CRC for errors
-  cut_off = length(rx_bits)-32;
-  output_bits = rx_bits(1:cut_off);
-  crc = rx_bits(cut_off+1:end);
+    configuration;
+    persistent savebits
+    
+    
+    %% Demodulate symbols %%
+    [output_bits, softbits] = demodulate(rx_samples, MODULATION, SAMPLES_PER_SYMBOL, PULSE_SHAPE);
+    
+    
+    %% Decode bits %%
+    
+    %deinterleave -- add this for Rayleigh
+    
+    %ARQ
+    if harqtype == 0
+        decoded_bits = output_bits;
+    
+    %HARQ with Convolutional Coding
+    elseif harqtype == 1 && strcmp(CODING,'CONV')
+        decoded_bits = soft_viterbi_decode(softbits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    elseif harqtype == 2 && strcmp(CODING,'CONV')
+        numpolys = length(GENERATING_POLYS);
+        if txattempt <= numpolys %First round of transmissions
+            if txattempt == 1 %First transmission
+                %Populate savebits as a row vector
+                if isrow(softbits)
+                    savebits = softbits;
+                else
+                    savebits = softbits';
+                end
+                %Decode bits
+                decoded_bits = soft_viterbi_decode(savebits, 1, GENERATING_POLYS(1), CONSTRAINT_LENGTH);
+                
+            else %Transmission of a subsequent poly
+                %Populate savebits as a row vector
+                if isrow(softbits)
+                    savebits = [savebits; softbits];
+                else
+                    savebits = [savebits; softbits'];
+                end
+                %Decode bits
+                decoded_bits = soft_viterbi_decode(savebits(:), 1, GENERATING_POLYS(1:txattempt), CONSTRAINT_LENGTH);
+                %Since we send input to soft_viterbi_decode as a column vector,
+                %the output will come out a column vector. So we need to change it
+                %back to a row vector if needed
+                if isrow(softbits)
+                    decoded_bits = decoded_bits';
+                end
+                
+            end 
+            
+        else
+            disp('TO DO: Cannot currently process more than one round of transmissions.')
+            disp('Implement functionality here to deal with repetition codes :)')
+            %Need to check literature to see how this is done.
+            %I could possibly do an average here for each poly by taking the
+            %average of the softbits output, then do complete Viterbi decoding.
+    
+            
+            
+            %CURRENTLY JUST REPEATING IMPLEMENTATION WITHOUT SAVING DATA FROM
+            %FIRST SET OF RETRANSMISSIONS
+            if mod(txattempt,numpolys) == 1 %Another transmission of same poly
+                %Populate savebits as a row vector
+                if isrow(softbits)
+                    savebits = softbits;
+                else
+                    savebits = softbits';
+                end
+                %Decode bits
+                decoded_bits = soft_viterbi_decode(savebits, 1, GENERATING_POLYS(1), CONSTRAINT_LENGTH);   
+                
+            else %Another transmission of a subsequent poly  
+                tmpidx = mod(txattempt,numpolys);
+                if tmpidx == 0
+                    tmpidx = numpolys;
+                end
+                %Populate savebits as a row vector
+                if isrow(softbits)
+                    savebits = [savebits; softbits];
+                else
+                    savebits = [savebits; softbits'];
+                end
+                %Decode bits
+                decoded_bits = soft_viterbi_decode(savebits(:), 1, GENERATING_POLYS(1:tmpidx), CONSTRAINT_LENGTH);
+                %Since we send input to soft_viterbi_decode as a column vector,
+                %the output will come out a column vector. So we need to change it
+                %back to a row vector if needed
+                if isrow(softbits)
+                    decoded_bits = decoded_bits';
+                end
+                
+            end 
+            
+            
+        end
+        
+        
+    %HARQ with Reed-Solomon Coding
+    elseif harqtype == 1 && strcmp(CODING,'RS')
+        %Replace with RS coding
+        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    elseif harqtype == 2 && strcmp(CODING,'RS')
+        %Replace with RS coding
+        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    end
+    
+    
+  %% Check CRC %%
+  cut_off = length(decoded_bits)-32;
+  output_bits = decoded_bits(1:cut_off);
+  crc = decoded_bits(cut_off+1:end);
   crc = crc(:);
-  %Send ACK/NACK
+  
+  % Send ACK/NACK
   computed_crc = crc32(output_bits);
   if sum(abs(crc - computed_crc))
       success = false;
@@ -21,6 +136,11 @@ function [ success, output_bits ] = receive( rx_samples )
       success = true;
   end
 
+
+
+%Receiver for ARQ
+  %Incoming symbols
+  %Demodulate symbols
 %Receiver for HARQI
   %Incoming symbols
   %Demodulate symbols

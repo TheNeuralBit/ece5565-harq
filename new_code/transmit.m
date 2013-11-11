@@ -1,23 +1,78 @@
-function [ tx_samples, num_bits_txed ] = transmit( input_bits )
+function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattempt )
+%harq_toplevel:
+%  Transmission of the input bits in HARQ scenario
+%
+%  function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattempt )
+%
+%Input: 
+%  input_bits: 
+%  harqtype: 0=ARQ, 1=TypeI HARQ, 2=TypeII HARQ
+%  txattempt: Denotes the attempt number for the transmission of this set
+%    of bits. Each HARQ type and FEC scheme used may use this number to 
+%    determine exactly what to transmit (along with persistent info)
+%
+%Output:
+%  tx_samples: samples to be passed into channel 
+%  num_bits_txed: total number of bits transmitted (to be used for
+%    throughput measurements)
+%
     configuration;
     input_bits = input_bits(:);
+    persistent savebits
+
+    %% Add CRC %%
     
-    % BS Test Function
-    %tx_samples = input_bits;
-    %num_bits_txed = length( input_bits );
+    bitswithcrc = [input_bits; crc32(input_bits);];
+    num_bits_txed = length( bitswithcrc );
 
-%Transmitter for ARQ
-  %Incoming bits
-    %Add CRC
-    tx_bits = [input_bits; crc32(input_bits);];
-    num_bits_txed = length( tx_bits );
+    
+    %% Encode bits %%
+    
+    %ARQ
+    if harqtype == 0
+        encoded_bits = bitswithcrc;
+    
+    %HARQ with Convolutional Coding
+    elseif (harqtype == 1) && strcmp(CODING,'CONV')
+        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    elseif harqtype == 2 && strcmp(CODING,'CONV')
+        numpolys = length(GENERATING_POLYS);
+        if mod(txattempt,numpolys) == 1 %First transmission (or another transmission of first poly)
+            savebits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+            encoded_bits = savebits(1:numpolys:end);
+        elseif mod(txattempt,numpolys) == 0 %Transmission of last poly
+            firstbit = numpolys;
+            encoded_bits = savebits(firstbit:numpolys:end);
+        else %Transmission of some middle poly
+            encoded_bits = savebits(mod(txattempt,numpolys):numpolys:end);
+        end
+    
+        
+    %HARQ with Reed-Solomon Coding
+    elseif harqtype == 1 && strcmp(CODING,'RS')
+        %Replace with RS coding
+        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    elseif harqtype == 2 && strcmp(CODING,'RS')
+        %Replace with RS coding
+        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+    end
 
-    %Modulate all bits
-    tx_samples = modulate(tx_bits, MODULATION, SAMPLES_PER_SYMBOL);
+
+    %interleave -- add this for Rayleigh 
+
+    %Set number of bits that are transmitted
+    num_bits_txed = length( encoded_bits );
+    
+    %% Modulate bits %%
+    tx_samples = modulate(encoded_bits, MODULATION, SAMPLES_PER_SYMBOL);
     tx_samples = apply_filt(tx_samples, PULSE_SHAPE);
 
-  %Send all bits
 
+
+  
+
+  %Send all bits
+  
 %Transmitter for HARQI
   %Incoming bits
   %Add CRC

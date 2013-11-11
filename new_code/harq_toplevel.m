@@ -1,17 +1,36 @@
-function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET, SNR_RANGE )
+function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET, EBNO, HARQ_TYPE )
+%harq_toplevel:
+%  Top level function to run the HARQ simulation 
+%
+%  function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET, EBNO, HARQ_TYPE )
+%
+%Input: 
+%  NUM_PACKETS: 
+%  DATA_BITS_PER_PACKET: 
+%  EBNO: Range of SNR expressed as Eb/No
+%  HARQ_TYPE: 0=ARQ, 1=TypeI HARQ, 2=TypeII HARQ
+%
+%Output:
+%  throughput: 
+%  ber:
+%
+
+
     configuration;
-
+    
+    %Precompute noise variance for different EbNo
+    EsNo = CODE_RATE.*BITS_PER_SYMBOL.*10.^(0.1.*EBNO);
+    noise_variance = 1./(2.*EsNo); % Convert Es_No to variance
+    
     % Pre-allocate return arrays
-    throughput = zeros( 1, length(SNR_RANGE) );
-    ber = zeros( 1, length(SNR_RANGE) );
-
+    throughput = zeros( 1, length(EBNO) );
+    ber = zeros( 1, length(EBNO) );
+    
     %Generate packets with random bits to send
-    PACKET_DATA = randn( NUM_PACKETS, DATA_BITS_PER_PACKET ) < 1;
+    PACKET_DATA = randn( NUM_PACKETS, DATA_BITS_PER_PACKET ) < 0;
 
     %Loop over SNR
-    for snr_idx = 1:length( SNR_RANGE )
-        %snr = SNR_RANGE(snr_idx);
-        %variance = TODO
+    for ebno_idx = 1:length( EBNO )
         tx_attempts = zeros(1, NUM_PACKETS);
         num_tx_bits = zeros(1, NUM_PACKETS);
         num_errors = zeros(1, NUM_PACKETS);
@@ -28,17 +47,17 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
 
                 %Transmit
                 input_bits = PACKET_DATA(packet_idx,:);
-                [tx_samples, bit_count] = transmit( input_bits );
+                [tx_samples, bit_count] = transmit( input_bits, HARQ_TYPE, attempt_counter );
                 tx_bit_counter = tx_bit_counter + bit_count;
                 
                 %Channel
-                rx_samples = awgnChannel(tx_samples, .05, F_S, 0, 0, 0, 0);
+                rx_samples = awgnChannel(tx_samples, noise_variance(ebno_idx), F_S, 0, 0, 0, 0);
                 %rx_samples = tx_samples;
                 %figure;
-                plot(rx_samples, 'o');
+                %plot(rx_samples, 'o');
                 
                 %Receive
-                [success, output_bits] = receive( rx_samples );
+                [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
                 if ~success
                     disp 'Oh no! Failed Packet! Retry'
                 end
@@ -58,12 +77,13 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
             num_tx_bits(packet_idx) = tx_bit_counter;
             num_errors(packet_idx) = error_counter;
 
-          %Record packet_size/tx_symbols (throughput efficiency) and tx_num (number
-          %of transmissions) for this packet
+        %Record packet_size/tx_symbols (throughput efficiency) and tx_num (number
+        %of transmissions) for this packet
         end
         % TODO: Do we want to keep tx_attemps, num_tx_bits, num_errors around for more analysis?
-        throughput(snr_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
-        ber(snr_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
+        throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
+        ber(ebno_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
+        
         %Record total results averaging over all packets
     end
 end
