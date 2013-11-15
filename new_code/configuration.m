@@ -1,5 +1,5 @@
 %% Configuruable Parameters
-MODULATION = 'QPSK';        % 16QAM or QPSK
+MODULATION = 'BPSK';        % 16QAM or QPSK
 CODING = 'CONV';            % CONV or RS
 PACKET_SIZE_BITS = 2048;    % Packet size including header bits
 %HEADER_SIZE_BITS = 16;
@@ -8,10 +8,15 @@ PHASE_WINDOW = 256;
 
 MAX_ATTEMPTS = 3;
 
-if strcmp(MODULATION, 'QPSK')
+if strcmp(MODULATION, 'BPSK')
+    M = 2;
+    BITS_PER_SYMBOL = 1;
+elseif strcmp(MODULATION, 'QPSK')
     M = 4;
+    BITS_PER_SYMBOL = 2;
 elseif strcmp(MODULATION, '16QAM')
     M = 16;
+    BITS_PER_SYMBOL = 4;
 end
 
 if strcmp(CODING,'CONV')
@@ -33,16 +38,6 @@ F_S = 1e7;   % given, sample rate = 10 Msps
 %DATA_SIZE_BITS = PACKET_SIZE_BITS - HEADER_SIZE_BITS;
 SAMPLES_PER_SYMBOL = 4;  % given, samp/symbol >= 4
 T = SAMPLES_PER_SYMBOL/F_S; % symbol time
-
-
-
-if strcmp(MODULATION,'QPSK')
-    M = 4;
-    BITS_PER_SYMBOL = 2;
-elseif strcmp(MODULATION,'16QAM')
-    M = 16;
-    BITS_PER_SYMBOL = 4;
-end
 
 PULSE_SHAPE = generate_pulse_shaping_filt(F_S, T, RC_ROLLOFF);
 

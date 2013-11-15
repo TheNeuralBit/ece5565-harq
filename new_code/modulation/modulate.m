@@ -7,8 +7,12 @@ function [ symbols ] = modulate( bits, type, samples_per_symbol )
 % type - type of modulation to perform (QPSK or 16QAM)
 % samples_per_symbol - The number of samples_per_symbol
 
-if strcmp(type, 'QPSK')
+if strcmp(type, 'BPSK')
+    symbols = MPSKmod(bits, 1, 0);
+elseif strcmp(type, 'QPSK')
     symbols = QPSKmod(bits);
+elseif strcmp(type, '8PSK')
+    symbols = MPSKmod(bits, 3, 0);
 elseif strcmp(type, '16QAM')
     symbols = QAM_16_mod(bits);
 else
@@ -18,4 +22,3 @@ end
 symbols = upsample(symbols, samples_per_symbol);
 
 end
-
