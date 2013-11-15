@@ -34,9 +34,13 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         tx_attempts = zeros(1, NUM_PACKETS);
         num_tx_bits = zeros(1, NUM_PACKETS);
         num_errors = zeros(1, NUM_PACKETS);
+        fprintf('EbN0 = %d dB\n', EBNO(ebno_idx))
+        fprintf(repmat('-', 1, NUM_PACKETS))
+        fprintf('\n')
         %Loop over total number of packets to transmit
         for packet_idx = 1:NUM_PACKETS
-            fprintf('Packet #%d\n', packet_idx)
+            %fprintf('Packet #%d\n', packet_idx)
+            fprintf('.')
             %While loop over transmit/receive until no error is detected in packet
             attempt_counter = 0;
             tx_bit_counter = 0;
@@ -51,22 +55,22 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 tx_bit_counter = tx_bit_counter + bit_count;
                 
                 %Channel
-                rx_samples = awgnChannel(tx_samples, noise_variance(ebno_idx), F_S, 0, 0, 0, 0);
+                rx_samples = awgnChannel(tx_samples, noise_variance(ebno_idx), F_S, 0, 0, 0, MAX_DOPPLER);
                 %rx_samples = tx_samples;
                 %figure;
                 %plot(rx_samples, 'o');
                 
                 %Receive
                 [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
-                if ~success
-                    disp 'Oh no! Failed Packet! Retry'
-                end
+                %if ~success
+                %    disp 'Oh no! Failed Packet! Retry'
+                %end
                 %"Send feedback on return channel" (assume perfect feedback)
                 %If no error detected
                 if success || attempt_counter >= MAX_ATTEMPTS
-                    if attempt_counter >= MAX_ATTEMPTS
-                        disp 'Transmission failed too many times, bailing out!'
-                    end
+                    %if attempt_counter >= MAX_ATTEMPTS
+                    %    disp 'Transmission failed too many times, bailing out!'
+                    %end
                     % add up any actual errors that were made
                     error_counter = error_counter + sum( abs( input_bits(:)-output_bits(:) ) );
                     % break out of loop
@@ -80,6 +84,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         %Record packet_size/tx_symbols (throughput efficiency) and tx_num (number
         %of transmissions) for this packet
         end
+        fprintf('\n\n')
         % TODO: Do we want to keep tx_attemps, num_tx_bits, num_errors around for more analysis?
         throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
         ber(ebno_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
