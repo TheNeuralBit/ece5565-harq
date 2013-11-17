@@ -112,13 +112,24 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
         end
         
         
-    %HARQ with Reed-Solomon Coding
+    % HARQ with Reed-Solomon Coding
     elseif harqtype == 1 && strcmp(CODING,'RS')
-        %output_bits
         decoded_bits = rs_decoder(output_bits);
     elseif harqtype == 2 && strcmp(CODING,'RS')
-        %Replace with RS coding
-        encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        if (txattempt == 1)
+            savebits = zeros(1, RS_CODEWORD_SIZE * SYMBOL_SIZE);
+            start_pos = 1;
+            end_pos   = length(output_bits);
+        elseif (txattempt == 2)
+            start_pos = RS_DATA_SIZE * SYMBOL_SIZE + 1;
+            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + HARQ2_NUM_SYMBOLS_RETRANSMIT) * SYMBOL_SIZE;
+        else
+            start_pos = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((txattempt - 1) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE + 1;
+            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + (txattempt * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE;
+        end
+        
+        savebits(start_pos:end_pos) = output_bits;
+        decoded_bits = rs_decoder(savebits);
     end
     
     

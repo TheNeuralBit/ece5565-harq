@@ -19,6 +19,6 @@ function decodedData = decoder(encodedData, redundantSymbols)
             repairedMessage = rs_correct_errata(encodedData(index:index+codewordSize-1), syndrome, errorPositions, gf_exp, gf_log);
             decodedData = [decodedData repairedMessage(1:codewordSize-redundantSymbols)]; %#ok<AGROW>
         else
-            decodedData = [decodedData encodedData(index:index+codewordSize-1-redundantSymbols)];
+            decodedData = [decodedData encodedData(index:index+codewordSize-1-redundantSymbols)]; %#ok<AGROW>
         end
     end

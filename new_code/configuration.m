@@ -1,12 +1,12 @@
 %% Configuruable Parameters
 MODULATION = 'QPSK';        % 16QAM or QPSK
-CODING = 'CONV';            % CONV or RS
+CODING = 'RS';            % CONV or RS
 PACKET_SIZE_BITS = 2048;    % Packet size including header bits
 %HEADER_SIZE_BITS = 16;
 RC_ROLLOFF = 0.25;          % Adjusts alpha of the RRC pulse shape
 PHASE_WINDOW = 256;
 
-MAX_ATTEMPTS = 3;
+MAX_ATTEMPTS = 4;
 
 if strcmp(MODULATION, 'QPSK')
     M = 4;
@@ -23,7 +23,10 @@ elseif strcmp(CODING,'RS')
     SYMBOL_SIZE = 8;
     GALOIS_FIELD_GENERATOR_POLY = 285;
     REDUNDANT_SYMBOLS = 32;
-    CODE_RATE = (2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1)/(2^SYMBOL_SIZE-1);
+    RS_CODEWORD_SIZE = 2^SYMBOL_SIZE-1;
+    RS_DATA_SIZE = RS_CODEWORD_SIZE - REDUNDANT_SYMBOLS;
+    CODE_RATE = RS_DATA_SIZE / RS_CODEWORD_SIZE;
+    HARQ2_NUM_SYMBOLS_RETRANSMIT = 4; % Must be an even number. RS codes require 2 symbols to correct for 1 error.
 end
 
 
