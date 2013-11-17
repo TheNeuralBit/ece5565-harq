@@ -8,7 +8,7 @@ function [ symbols ] = modulate( bits, type, samples_per_symbol )
 % samples_per_symbol - The number of samples_per_symbol
 
 if strcmp(type, 'BPSK')
-    symbols = MPSKmod(bits, 1, 0);
+    symbols = -2.*bits + 1;
 elseif strcmp(type, 'QPSK')
     symbols = QPSKmod(bits);
 elseif strcmp(type, '8PSK')
