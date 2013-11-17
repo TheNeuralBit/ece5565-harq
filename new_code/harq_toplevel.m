@@ -32,6 +32,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
     %Loop over SNR
     for ebno_idx = 1:length( EBNO )
         tx_attempts = zeros(1, NUM_PACKETS);
+        failed_attempts = zeros(1, NUM_PACKETS);
         num_tx_bits = zeros(1, NUM_PACKETS);
         num_errors = zeros(1, NUM_PACKETS);
         fprintf('EbN0 = %d dB\n', EBNO(ebno_idx))
@@ -62,9 +63,10 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 
                 %Receive
                 [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
-                %if ~success
-                %    disp 'Oh no! Failed Packet! Retry'
-                %end
+                if ~success
+                    failed_attempts(packet_idx) = failed_attempts(packet_idx) + 1;
+                end
+                
                 %"Send feedback on return channel" (assume perfect feedback)
                 %If no error detected
                 if success || attempt_counter >= MAX_ATTEMPTS
@@ -86,11 +88,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         end
         fprintf('\n\n')
         % TODO: Do we want to keep tx_attemps, num_tx_bits, num_errors around for more analysis?
-        if (success == true)
-            throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
-        else
-            throughput(ebno_idx) = 0;
-        end
+        throughput(ebno_idx) = ((sum(tx_attempts) - sum(failed_attempts)) * DATA_BITS_PER_PACKET) / sum( num_tx_bits );
         ber(ebno_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
         
         %Record total results averaging over all packets
