@@ -86,7 +86,11 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         end
         fprintf('\n\n')
         % TODO: Do we want to keep tx_attemps, num_tx_bits, num_errors around for more analysis?
-        throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
+        if (success == true)
+            throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
+        else
+            throughput(ebno_idx) = 0;
+        end
         ber(ebno_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
         
         %Record total results averaging over all packets
