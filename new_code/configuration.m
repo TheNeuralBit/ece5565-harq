@@ -1,6 +1,6 @@
 %% Configuruable Parameters
 MODULATION = 'BPSK';        % 16QAM or QPSK
-CODING = 'CONV';            % CONV or RS
+CODING = 'RS';            % CONV or RS
 PACKET_SIZE_BITS = 2048;    % Packet size including header bits
 %HEADER_SIZE_BITS = 16;
 RC_ROLLOFF = 0.25;          % Adjusts alpha of the RRC pulse shape
@@ -38,7 +38,6 @@ elseif strcmp(CODING, 'RS')
     CODE_RATE = (2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1)/(2^SYMBOL_SIZE-1);
     CODE_RATE_STR = [num2str(2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1) num2str(2^SYMBOL_SIZE-1)];
     HARQ2_NUM_SYMBOLS_RETRANSMIT = 4; % Must be an even number. RS codes require 2 symbols to correct for 1 error.
-    MAX_ATTEMPTS = 5;
 end
 
 
