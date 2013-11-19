@@ -23,10 +23,7 @@ function output_bits = rs_encoder(input_bits)
     end
     
     % Encode the message
-    encodedData = [];
-    for index = 1:messageSize:length(data)
-        encodedData = [encodedData rs_encode_msg(data(index:index+messageSize-1), REDUNDANT_SYMBOLS, gf_exp, gf_log)]; %#ok<AGROW>
-    end
+    encodedData = rs_encode_msg(data, REDUNDANT_SYMBOLS, gf_exp, gf_log);
     
     % Convert decimal symbols back to binary vector
     encodedDataSymbols = length(encodedData);

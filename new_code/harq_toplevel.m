@@ -31,7 +31,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
 
     %Loop over SNR
     for ebno_idx = 1:length( EBNO )
-        tx_attempts = zeros(1, NUM_PACKETS);
+        failed_attempts = zeros(1, NUM_PACKETS);
         num_tx_bits = zeros(1, NUM_PACKETS);
         num_errors = zeros(1, NUM_PACKETS);
         successes = zeros(1, NUM_PACKETS);
@@ -63,9 +63,10 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 
                 %Receive
                 [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
-                %if ~success
-                %    disp 'Oh no! Failed Packet! Retry'
-                %end
+                if ~success
+                    failed_attempts(packet_idx) = failed_attempts(packet_idx) + 1;
+                end
+                
                 %"Send feedback on return channel" (assume perfect feedback)
                 %If no error detected
                 if success || attempt_counter >= MAX_ATTEMPTS
@@ -78,7 +79,6 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                     break;
                 end
             end
-            tx_attempts(packet_idx) = attempt_counter;
             num_tx_bits(packet_idx) = tx_bit_counter;
             successes(packet_idx) = success;
             num_errors(packet_idx) = error_counter;

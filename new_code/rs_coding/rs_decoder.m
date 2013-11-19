@@ -1,13 +1,11 @@
 function output_bits = rs_decoder(input_bits)
     configuration;
-    fieldDimension = 2^SYMBOL_SIZE;
-    codewordSize = fieldDimension - 1;
     numSymbols = length(input_bits) / SYMBOL_SIZE;
     
     % Create the Galois field.
     [gf_exp, gf_log] = my_galoisField;
     
-    encodedData = zeros(1, numSymbols);
+    encodedData = -ones(1, RS_CODEWORD_SIZE);
     
     % Convert binary to decimal symbols
     for idx = 1:numSymbols
@@ -16,24 +14,9 @@ function output_bits = rs_decoder(input_bits)
         encodedData(idx) = binaryVectorToDecimal(input_bits(startPos:endPos));
     end
     
-    decodedData = [];
-    for index = 1:codewordSize:length(encodedData)
-        % Calculate the syndrome
-        syndrome = rs_calc_syndromes(encodedData(index:index+codewordSize-1), REDUNDANT_SYMBOLS, gf_exp, gf_log);
-
-        % Find the position of the errors
-        errorPositions = rs_find_errors(syndrome, codewordSize, gf_exp, gf_log);
-        
-        if errorPositions ~= -1
-            % Repair the message
-            repairedMessage = rs_correct_errata(encodedData(index:index+codewordSize-1), syndrome, errorPositions, gf_exp, gf_log);
-            decodedData = [decodedData repairedMessage(1:codewordSize-REDUNDANT_SYMBOLS)]; %#ok<AGROW>
-        else
-            decodedData = [decodedData encodedData(index:index+codewordSize-1-REDUNDANT_SYMBOLS)]; %#ok<AGROW>
-        end
-    end
-    
-    %decodedDataHmm = decodedData
+    % Correct the message of any errors or erasures.
+    decodedData = rs_correct_msg(encodedData, REDUNDANT_SYMBOLS, gf_exp, gf_log);
+    decodedData = decodedData(1:RS_DATA_SIZE);
     
     % Convert decimal symbols back to binary vector
     decodedDataSymbols = length(decodedData);
@@ -43,5 +26,3 @@ function output_bits = rs_decoder(input_bits)
         endPos = idx * SYMBOL_SIZE;
         output_bits(startPos:endPos) = decimalToBinaryVector(decodedData(idx), SYMBOL_SIZE);
     end
-    
-    %outputBitsHmm = output_bits
