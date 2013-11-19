@@ -34,6 +34,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         tx_attempts = zeros(1, NUM_PACKETS);
         num_tx_bits = zeros(1, NUM_PACKETS);
         num_errors = zeros(1, NUM_PACKETS);
+        successes = zeros(1, NUM_PACKETS);
         fprintf('EbN0 = %d dB\n', EBNO(ebno_idx))
         fprintf(repmat('-', 1, NUM_PACKETS))
         fprintf('\n')
@@ -79,6 +80,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
             end
             tx_attempts(packet_idx) = attempt_counter;
             num_tx_bits(packet_idx) = tx_bit_counter;
+            successes(packet_idx) = success;
             num_errors(packet_idx) = error_counter;
 
         %Record packet_size/tx_symbols (throughput efficiency) and tx_num (number
@@ -86,7 +88,7 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
         end
         fprintf('\n\n')
         % TODO: Do we want to keep tx_attemps, num_tx_bits, num_errors around for more analysis?
-        throughput(ebno_idx) = (NUM_PACKETS*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
+        throughput(ebno_idx) = (sum(successes)*DATA_BITS_PER_PACKET) / sum( num_tx_bits );
         ber(ebno_idx) = sum( num_errors ) / (NUM_PACKETS*DATA_BITS_PER_PACKET);
         
         %Record total results averaging over all packets
