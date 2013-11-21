@@ -24,8 +24,6 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
     
     %crc32_input_bits = crc32(input_bits)'
     bitswithcrc = [input_bits; crc32(input_bits);];
-    num_bits_txed = length( bitswithcrc );
-
     
     %% Encode bits %%
     
@@ -53,20 +51,24 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
     elseif harqtype == 1 && strcmp(CODING,'RS')
         encoded_bits = rs_encoder(bitswithcrc);
     elseif harqtype == 2 && strcmp(CODING,'RS')
-        if (txattempt == 1)
+        transmissionCount = (mod(txattempt, PARITY_TRANMISSIONS));
+        if (transmissionCount == 0)
+            transmissionCount = PARITY_TRANMISSIONS;
+        end
+        
+        if (transmissionCount == 1) 
             start_pos = 1;
             end_pos   = RS_DATA_SIZE * SYMBOL_SIZE;
             savebits = rs_encoder(bitswithcrc);
-        elseif (txattempt == 2)
+        elseif (transmissionCount == 2)
             start_pos = RS_DATA_SIZE * SYMBOL_SIZE + 1;
             end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + HARQ2_NUM_SYMBOLS_RETRANSMIT) * SYMBOL_SIZE;
         else
-            start_pos = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((txattempt - 1) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE + 1;
-            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + (txattempt * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE;
+            start_pos = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((transmissionCount - 2) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE + 1;
+            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((transmissionCount - 1) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE;
         end
         encoded_bits = savebits(start_pos:end_pos);
     end
-
 
     %interleave -- add this for Rayleigh 
 

@@ -4,12 +4,12 @@ function err_pos = rs_find_errors(synd, nmess, gf_exp, gf_log)
     err_poly = 1;
     old_poly = 1;
     
-    for i=1:length(synd)
+    for idx = 1:length(synd)
         old_poly = [old_poly 0]; %#ok<AGROW>
-        delta = synd(i);
+        delta = synd(idx);
         
-        for j = 2:length(err_poly)
-            delta = bitxor(delta, gf_mult(err_poly(length(err_poly)-j+1), synd(i+1-j), gf_exp, gf_log));
+        for jdx = 2:length(err_poly)
+            delta = bitxor(delta, gf_mult(err_poly(length(err_poly)-jdx+1), synd(idx+1-jdx), gf_exp, gf_log));
         end
         
         if delta ~= 0
@@ -28,9 +28,12 @@ function err_pos = rs_find_errors(synd, nmess, gf_exp, gf_log)
         err_pos = -1;
     else
         err_pos = [];
-        for i = 1:nmess
-            if gf_poly_eval(err_poly, gf_exp(fieldSize-i+1), gf_exp, gf_log) == 0
-                err_pos = [err_pos nmess-i+1]; %#ok<AGROW>
+        for jdx = 1:nmess
+            %jdx
+            %nmess
+            %hmm = fieldSize-jdx+1
+            if gf_poly_eval(err_poly, gf_exp(fieldSize-jdx+1), gf_exp, gf_log) == 0
+                err_pos = [err_pos nmess-jdx+1]; %#ok<AGROW>
             end
         end
         

@@ -61,7 +61,7 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
                 if polyidx == 0
                     polyidx = numpolys;
                 end
-                genpolys = [genpolys GENERATING_POLYS(polyidx)];
+                genpolys = [genpolys GENERATING_POLYS(polyidx)]; %#ok<AGROW>
             end
             %Decode bits
             decoded_bits = soft_viterbi_decode(savebits(:), 1, genpolys, CONSTRAINT_LENGTH);
@@ -79,16 +79,21 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
     elseif harqtype == 1 && strcmp(CODING,'RS')
         decoded_bits = rs_decoder(output_bits);
     elseif harqtype == 2 && strcmp(CODING,'RS')
-        if (txattempt == 1)
+        transmissionCount = (mod(txattempt, PARITY_TRANMISSIONS));
+        if (transmissionCount == 0)
+            transmissionCount = PARITY_TRANMISSIONS;
+        end
+        
+        if (transmissionCount == 1)
             savebits = zeros(1, RS_CODEWORD_SIZE * SYMBOL_SIZE);
             start_pos = 1;
             end_pos   = length(output_bits);
-        elseif (txattempt == 2)
+        elseif (transmissionCount == 2)
             start_pos = RS_DATA_SIZE * SYMBOL_SIZE + 1;
             end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + HARQ2_NUM_SYMBOLS_RETRANSMIT) * SYMBOL_SIZE;
         else
-            start_pos = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((txattempt - 1) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE + 1;
-            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + (txattempt * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE;
+            start_pos = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((transmissionCount - 2) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE + 1;
+            end_pos   = (RS_DATA_SIZE + (REDUNDANT_SYMBOLS / 2) + ((transmissionCount - 1) * HARQ2_NUM_SYMBOLS_RETRANSMIT)) * SYMBOL_SIZE;
         end
         
         savebits(start_pos:end_pos) = output_bits;

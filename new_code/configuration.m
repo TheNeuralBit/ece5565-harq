@@ -7,7 +7,7 @@ RC_ROLLOFF = 0.25;          % Adjusts alpha of the RRC pulse shape
 PHASE_WINDOW = 256;
 MAX_DOPPLER = 0;
 
-MAX_ATTEMPTS = 4;
+MAX_ATTEMPTS = 9;
 
 if strcmp(MODULATION, 'BPSK')
     M = 2;
@@ -32,12 +32,13 @@ elseif strcmp(CODING, 'RS')
     %Add RS parameters here
     SYMBOL_SIZE = 8;
     GALOIS_FIELD_GENERATOR_POLY = 285;
-    REDUNDANT_SYMBOLS = 32;
+    PARITY_TRANMISSIONS = 9;
+    REDUNDANT_SYMBOLS = 128;
     RS_CODEWORD_SIZE = 2^SYMBOL_SIZE-1;
     RS_DATA_SIZE = RS_CODEWORD_SIZE - REDUNDANT_SYMBOLS;
     CODE_RATE = (2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1)/(2^SYMBOL_SIZE-1);
     CODE_RATE_STR = [num2str(2^SYMBOL_SIZE - REDUNDANT_SYMBOLS - 1) num2str(2^SYMBOL_SIZE-1)];
-    HARQ2_NUM_SYMBOLS_RETRANSMIT = 4; % Must be an even number. RS codes require 2 symbols to correct for 1 error.
+    HARQ2_NUM_SYMBOLS_RETRANSMIT = 8; % Must be an even number. RS codes require 2 symbols to correct for 1 error.
 end
 
 

@@ -64,7 +64,10 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                 %Receive
                 [success, output_bits] = receive( rx_samples, HARQ_TYPE, attempt_counter );
                 if ~success
-                    failed_attempts(packet_idx) = failed_attempts(packet_idx) + 1;
+                    %disp 'Failed transmission';
+                    if (HARQ_TYPE ~= 2)
+                        failed_attempts(packet_idx) = failed_attempts(packet_idx) + 1;
+                    end
                 end
                 
                 %"Send feedback on return channel" (assume perfect feedback)
@@ -74,12 +77,20 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
                     %    disp 'Transmission failed too many times, bailing out!'
                     %end
                     % add up any actual errors that were made
-                    error_counter = error_counter + sum( abs( input_bits(:)-output_bits(:) ) );
+                    %error_counter = error_counter + sum( abs( input_bits(:)-output_bits(:) ) );
                     % break out of loop
                     break;
                 end
             end
-            tx_attempts(packet_idx) = attempt_counter;
+            
+            if (HARQ_TYPE == 2)
+                tx_attempts(packet_idx) = tx_attempts(packet_idx) + 1;
+                if (success == false)
+                    failed_attempts(packet_idx) = failed_attempts(packet_idx) + 1;
+                end
+            else
+                tx_attempts(packet_idx) = attempt_counter;
+            end
             num_tx_bits(packet_idx) = tx_bit_counter;
             num_errors(packet_idx) = error_counter;
 

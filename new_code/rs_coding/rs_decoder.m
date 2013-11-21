@@ -16,13 +16,13 @@ function output_bits = rs_decoder(input_bits)
     
     % Correct the message of any errors or erasures.
     decodedData = rs_correct_msg(encodedData, REDUNDANT_SYMBOLS, gf_exp, gf_log);
-    decodedData = decodedData(1:RS_DATA_SIZE);
+    recoveredData = decodedData(1:RS_DATA_SIZE);
     
     % Convert decimal symbols back to binary vector
-    decodedDataSymbols = length(decodedData);
+    decodedDataSymbols = length(recoveredData);
     output_bits = zeros(1, decodedDataSymbols*SYMBOL_SIZE);
     for idx = 1:decodedDataSymbols
         startPos = (idx - 1) * SYMBOL_SIZE + 1;
         endPos = idx * SYMBOL_SIZE;
-        output_bits(startPos:endPos) = decimalToBinaryVector(decodedData(idx), SYMBOL_SIZE);
+        output_bits(startPos:endPos) = decimalToBinaryVector(recoveredData(idx), SYMBOL_SIZE);
     end
