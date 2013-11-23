@@ -19,7 +19,8 @@ function [ throughput, ber ] = harq_toplevel( NUM_PACKETS, DATA_BITS_PER_PACKET,
     configuration;
     
     %Precompute noise variance for different EbNo
-    EsNo = CODE_RATE.*BITS_PER_SYMBOL.*10.^(0.1.*EBNO);
+    %EsNo = CODE_RATE.*BITS_PER_SYMBOL.*10.^(0.1.*EBNO);
+    EsNo = BITS_PER_SYMBOL.*10.^(0.1.*EBNO);
     noise_variance = 1./(2.*EsNo); % Convert Es_No to variance
     
     % Pre-allocate return arrays
