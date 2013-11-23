@@ -24,8 +24,8 @@ elseif strcmp(MODULATION, '16QAM')
 end
 
 if strcmp(CODING, 'CONV')
-    GENERATING_POLYS = [13 15 17];
-    CONSTRAINT_LENGTH = 4;      % Must be set to the appropriate value based on polys
+    GENERATING_POLYS = [133 171]; %[13 15 17];
+    CONSTRAINT_LENGTH = 6; %4;      % Must be set to the appropriate value based on polys
     CODE_RATE = 1/length(GENERATING_POLYS);
     CODE_RATE_STR = ['1' num2str(length(GENERATING_POLYS))];
 elseif strcmp(CODING, 'RS')
