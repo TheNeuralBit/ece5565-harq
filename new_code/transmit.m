@@ -33,8 +33,10 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
     
     %HARQ with Convolutional Coding
     elseif (harqtype == 1) && strcmp(CODING,'CONV')
+        bitswithcrc = [bitswithcrc; zeros(CONSTRAINT_LENGTH,1)]; %Zero-tail bits
         encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
     elseif harqtype == 2 && strcmp(CODING,'CONV')
+        bitswithcrc = [bitswithcrc; zeros(CONSTRAINT_LENGTH,1)]; %Zero-tail bits
         numpolys = length(GENERATING_POLYS);
         if mod(txattempt,numpolys) == 1 %First transmission (or another transmission of first poly)
             savebits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);

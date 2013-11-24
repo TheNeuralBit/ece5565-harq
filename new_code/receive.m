@@ -34,6 +34,7 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
     %HARQ with Convolutional Coding
     elseif harqtype == 1 && strcmp(CODING,'CONV')
         decoded_bits = soft_viterbi_decode(softbits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        decoded_bits = decoded_bits(1:end-CONSTRAINT_LENGTH); %Zero-tail bits
     elseif harqtype == 2 && strcmp(CODING,'CONV')
         numpolys = length(GENERATING_POLYS);
         
@@ -61,7 +62,7 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
                 if polyidx == 0
                     polyidx = numpolys;
                 end
-                genpolys = [genpolys GENERATING_POLYS(polyidx)]; %#ok<AGROW>
+                genpolys = [genpolys GENERATING_POLYS(polyidx)];
             end
             %Decode bits
             decoded_bits = soft_viterbi_decode(savebits(:), 1, genpolys, CONSTRAINT_LENGTH);
@@ -72,6 +73,7 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
                 decoded_bits = decoded_bits';
             end
         end 
+        decoded_bits = decoded_bits(1:end-CONSTRAINT_LENGTH); %Zero-tail bits
 
         
         
