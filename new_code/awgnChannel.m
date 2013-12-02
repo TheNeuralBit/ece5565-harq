@@ -57,7 +57,7 @@ else
         gamma(a) = sum(exp(1i.*(2.*pi.*f.*t(a)+theta)))/sqrt(N);   
         
     end
-    faded_samples = freq_shifted_samples.*gamma;
+    faded_samples = freq_shifted_samples.*abs(gamma);
 end
 
 %Add AWGN
