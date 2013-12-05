@@ -33,9 +33,17 @@ function [ success, output_bits ] = receive( rx_samples, harqtype, txattempt )
     
     %HARQ with Convolutional Coding
     elseif harqtype == 1 && strcmp(CODING,'CONV')
+        %Deinterleave - Must be modified depending on number of input bits
+        tmp = interleave(softbits(12:2036), 45); %encoded_bits=2036
+        softbits = [softbits(1:11) tmp];
+        
         decoded_bits = soft_viterbi_decode(softbits, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
         decoded_bits = decoded_bits(1:end-CONSTRAINT_LENGTH); %Zero-tail bits
     elseif harqtype == 2 && strcmp(CODING,'CONV')
+        %Deinterleave - Must be modified depending on number of input bits
+        softbits = interleave(softbits, 32); 
+        softbits = softbits(1:1018); %encoded_bits=1018
+        
         numpolys = length(GENERATING_POLYS);
         
         if txattempt == 1 %First transmission
