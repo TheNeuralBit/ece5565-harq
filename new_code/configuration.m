@@ -1,7 +1,7 @@
 %% Configuruable Parameters
 MODULATION = 'BPSK';        % 16QAM or QPSK
 CODING = 'RS';            % CONV or RS
-PACKET_SIZE_BITS = 2048;    % Packet size including header bits
+PACKET_SIZE_BITS = 980;    % Packet size including header bits
 %HEADER_SIZE_BITS = 16;
 RC_ROLLOFF = 0.25;          % Adjusts alpha of the RRC pulse shape
 PHASE_WINDOW = 256;

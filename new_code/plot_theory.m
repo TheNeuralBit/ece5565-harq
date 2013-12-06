@@ -46,7 +46,7 @@ elseif cfg == 2 %With polys [133, 171]
     CODE_RATE = 1/2; 
     GENERATING_POLYS = [133 171]; %Rate 1/2
     CONSTRAINT_LENGTH = 6; 
-    k = 2048;%960;
+    k = 980;%960;
     n_p = 32;%14;
     m = 6;
     alpha = [11 0 38 0 193 0 1331 0 7275 0];
