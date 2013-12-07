@@ -35,6 +35,10 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
     elseif (harqtype == 1) && strcmp(CODING,'CONV')
         bitswithcrc = [bitswithcrc; zeros(CONSTRAINT_LENGTH,1)]; %Zero-tail bits
         encoded_bits = conv_encode(bitswithcrc, 1, GENERATING_POLYS, CONSTRAINT_LENGTH);
+        %Interleave - Must be modified depending on number of input bits
+        tmp = interleave(encoded_bits(12:2036), 45); %encoded_bits=2036
+        encoded_bits = [encoded_bits(1:11); tmp];
+        
     elseif harqtype == 2 && strcmp(CODING,'CONV')
         bitswithcrc = [bitswithcrc; zeros(CONSTRAINT_LENGTH,1)]; %Zero-tail bits
         numpolys = length(GENERATING_POLYS);
@@ -47,7 +51,8 @@ function [ tx_samples, num_bits_txed ] = transmit( input_bits, harqtype, txattem
         else %Transmission of some middle poly
             encoded_bits = savebits(mod(txattempt,numpolys):numpolys:end);
         end
-    
+        %Interleave - Must be modified depending on number of input bits
+        encoded_bits = interleave([encoded_bits; zeros(6,1)], 32); %encoded_bits=1018
         
     %HARQ with Reed-Solomon Coding
     elseif harqtype == 1 && strcmp(CODING,'RS')
