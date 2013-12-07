@@ -1,7 +1,7 @@
 function plot_results(glob)
     close all;
     
-    colors = ['b'; 'r'; 'g'];
+    colors = ['-ks'; '-b*'; '-ro'; '-gx'; '-m+'; '-cv'];
 
     results_dir = [pwd '/../results/'];
     files = dir([results_dir glob '.mat']);
@@ -16,7 +16,7 @@ function plot_results(glob)
         if idx > 1
             hold on;
         end
-        semilogy(EBNO, ber, colors(mod(idx - 1, length(colors)) + 1));
+        semilogy(EBNO, ber, colors(mod(idx - 1, length(colors)) + 1,:));
         if idx > 1
             hold off;
         end
@@ -25,7 +25,7 @@ function plot_results(glob)
         if idx > 1
             hold on;
         end
-        plot(EBNO, throughput, colors(mod(idx - 1, length(colors)) + 1));
+        plot(EBNO, throughput, colors(mod(idx - 1, length(colors)) + 1,:));
         if idx > 1
             hold off;
         end
