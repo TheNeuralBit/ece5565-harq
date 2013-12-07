@@ -86,8 +86,8 @@ Thr_ARQ = 1./Tr_ARQ .* (k./(k+n_p));
 %% HARQ Type I Throughput
 
 P_E = 0;
-for idx=1:length(alpha)
-    P_E = P_E + alpha(idx).*Q(ebno,2*(dfree+idx-1));
+for myidx=1:length(alpha)
+    P_E = P_E + alpha(myidx).*Q(ebno,2*(dfree+myidx-1));
 end 
 Tr_I = 1./(1-P_E).^(k+n_p); %Assumes l = 1
 Thr_I = 0.5./Tr_I .* (k./(k+n_p+m)); %Assumes l = 1
@@ -98,32 +98,32 @@ Thr_I = 0.5./Tr_I .* (k./(k+n_p+m)); %Assumes l = 1
 R = 1 - (1 - Q(ebno,2)).^(k+n_p + m); %Assumes l = 1
 
 P_E_2 = 0;
-for idx=1:length(alpha)
-    P_E_2 = P_E_2 + alpha(idx).*Q(ebno,2*(dfree+idx-1));
+for myidx=1:length(alpha)
+    P_E_2 = P_E_2 + alpha(myidx).*Q(ebno,2*(dfree+myidx-1));
 end 
 P_D_2 = 1 - (1-P_E_2).^(k+n_p); %Assumes l = 1
 
 P_E_3 = 0;
-for idx=1:length(alpha_3)
-    P_E_3 = P_E_3 + alpha_3(idx).*Q(ebno,2*(dfree_3+idx-1));
+for myidx=1:length(alpha_3)
+    P_E_3 = P_E_3 + alpha_3(myidx).*Q(ebno,2*(dfree_3+myidx-1));
 end 
 P_D_3 = 1 - (1-P_E_3).^(k+n_p); %Assumes l = 1
 
 P_E_5 = 0;
-for idx=1:length(alpha_5)
-    P_E_5 = P_E_5 + alpha_5(idx).*Q(ebno,2*(dfree_5+idx-1));
+for myidx=1:length(alpha_5)
+    P_E_5 = P_E_5 + alpha_5(myidx).*Q(ebno,2*(dfree_5+myidx-1));
 end 
 P_D_5 = 1 - (1-P_E_5).^(k+n_p); %Assumes l = 1
 
 P_E_7 = 0;
-for idx=1:length(alpha_7)
-    P_E_7 = P_E_7 + alpha_7(idx).*Q(ebno,2*(dfree_7+idx-1));
+for myidx=1:length(alpha_7)
+    P_E_7 = P_E_7 + alpha_7(myidx).*Q(ebno,2*(dfree_7+myidx-1));
 end 
 P_D_7 = 1 - (1-P_E_7).^(k+n_p); %Assumes l = 1
 
 P_E_9 = 0;
-for idx=1:length(alpha_9)
-    P_E_9 = P_E_9 + alpha_9(idx).*Q(ebno,2*(dfree_9+idx-1));
+for myidx=1:length(alpha_9)
+    P_E_9 = P_E_9 + alpha_9(myidx).*Q(ebno,2*(dfree_9+myidx-1));
 end 
 P_D_9 = 1 - (1-P_E_9).^(k+n_p); %Assumes l = 1
 
@@ -138,9 +138,9 @@ Thr_II = 1./Tr_II .* (k./(k+n_p+m)); %Assumes l = 1
 %% Plot
 
 %Fix approximations of HARQII to match ARQ if ARQ has better performance
-for idx=1:length(Thr_II)
-    if Thr_ARQ(idx) > Thr_II(idx)
-        Thr_II(idx) = Thr_ARQ(idx);
+for myidx=1:length(Thr_II)
+    if Thr_ARQ(myidx) > Thr_II(myidx)
+        Thr_II(myidx) = Thr_ARQ(myidx);
     end
 end
 
@@ -152,3 +152,17 @@ legend('ARQ','Type I HARQ upper bound','Type II HARQ upper bound','Location','No
 xlabel('Eb/No (dB)')
 ylabel('Throughput')
 title('Throughput for ARQ, Type I HARQ, and Type II HARQ with code combining') %assumes convolutional coding with soft decisions
+
+%% Save to file (must hand edit for each run)
+harq_str = 'ARQ'
+ber = zeros(size(EBNO));
+throughput = Thr_ARQ;
+
+result_file = [pwd, '/../test/', harq_str, '-BPSK-CONV12-0-theory'];
+disp 'Saving results to ', result_file
+save(result_file);
+
+
+
+
+
